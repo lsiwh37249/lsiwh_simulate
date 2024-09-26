@@ -2,9 +2,10 @@ import simpy
 import time
 
 class Customer(object):
-    def __init__(self, env, number):
+    def __init__(self, env, number,staff):
         self.env = env
         self.number = number 
+        self.staff = staff  # staff 인자를 받아서 클래스 내부에서 사용
         #분포에 따라 customer 도착
         self.action = env.process(self.customer_generate())
 
@@ -17,7 +18,7 @@ class Customer(object):
             #print(f"{name} {arrive} 카페도착 {now}")
             print(name, '%8.3f'%self.env.now, '카페도착')
             #도착한 고객은 주문하러 이동 
-            self.env.process(self.order_coffee(name, staff))
+            self.env.process(self.order_coffee(name,self.staff))
             
             interval_time = 10
             yield self.env.timeout(interval_time)
@@ -25,7 +26,7 @@ class Customer(object):
     
     def order_coffee(self, name, staff):
         #직원 요청 
-        with staff.request() as req:
+        with self.staff.request() as req:
             yield req
 
             #직원에게 30초동안 주문 
@@ -37,15 +38,14 @@ class Customer(object):
         #주문한 고객은 커피 수령을 위해 대기
         yield self.env.process(self.wait_for_coffee(name))
 
-
     def wait_for_coffee(self, name):
         #30초 대기 후 커피 수령 
         waiting_duration = 30
         yield(self.env.timeout(waiting_duration))
         print(name, '%8.3f' %self.env.now,'커피수령')
 
-env = simpy.Environment()
-staff = simpy.Resource(env, capacity=2)
-customer = Customer(env, 10)
-
-env.run()
+def start():    
+    env = simpy.Environment()
+    staff = simpy.Resource(env, capacity=2)
+    customer = Customer(env, 10,staff)
+    env.run()
