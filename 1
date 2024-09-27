@@ -1,7 +1,6 @@
 import simpy 
 import time
 from datetime import datetime, timedelta
-import random
 
 class Customer(object):
     def __init__(self, env, number,staff):
@@ -51,9 +50,5 @@ class Customer(object):
 def start():    
     env = simpy.Environment()
     staff = simpy.Resource(env, capacity=2)
-    
-    random_value = random.randint(1000, 1500)
-    print(random_value)
-    
-    customer = Customer(env, random_value ,staff)
+    customer = Customer(env, 10,staff)
     env.run()
