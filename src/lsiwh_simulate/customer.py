@@ -2,15 +2,17 @@ import simpy
 import time
 from datetime import datetime, timedelta
 import random
+import logging
 
 class Customer(object):
-    def __init__(self, env, number,staff):
+    def __init__(self, env, number,staff,logging):
         self.env = env
         self.number = number 
         self.staff = staff  # staff 인자를 받아서 클래스 내부에서 사용
         #분포에 따라 customer 도착
         self.action = env.process(self.customer_generate())
         self.start_time = datetime.now()
+        self.logging = logging
 
     def customer_generate(self):
         for i in range(self.number):
@@ -19,7 +21,7 @@ class Customer(object):
             #time.sleep(0.5)
             #print(f"{name} {arrive} 카페도착 {now}")
             current_sim_time = self.start_time + timedelta(seconds=self.env.now)
-            print(f"{name}, [{current_sim_time}], 카페도착")
+            self.logging.info(f"{name}, [{current_sim_time}], 카페도착")
             #도착한 고객은 주문하러 이동 
             self.env.process(self.order_coffee(name,self.staff))
             
@@ -36,7 +38,7 @@ class Customer(object):
             ordering_duration = 30
             yield self.env.timeout(ordering_duration)
             current_sim_time = self.start_time + timedelta(seconds=self.env.now)
-            print(f"{name}, [{current_sim_time}], 주문완료")
+            self.logging.info(f"{name}, [{current_sim_time}], 주문완료")
             
         #주문한 고객은 커피 수령을 위해 대기
         yield self.env.process(self.wait_for_coffee(name))
@@ -46,14 +48,14 @@ class Customer(object):
         waiting_duration = 30
         yield(self.env.timeout(waiting_duration))
         current_sim_time = self.start_time + timedelta(seconds=self.env.now)
-        print(f"{name}, [{current_sim_time}], 커피수령")
+        self.logging.info(f"{name}, [{current_sim_time}], 커피수령")
 
-def start():    
+def start(logging):    
     env = simpy.Environment()
     staff = simpy.Resource(env, capacity=2)
     
     random_value = random.randint(1000, 1500)
     print(random_value)
     
-    customer = Customer(env, random_value ,staff)
+    customer = Customer(env, random_value ,staff, logging)
     env.run()
