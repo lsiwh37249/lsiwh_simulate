@@ -13,7 +13,7 @@ class Customer(object):
         self.action = env.process(self.customer_generate())
         #self.start_time = datetime.now()
         self.logging = logging
-        self.start_time = datetime.strptime(str(ds_nodash)+000000, "%Y%m%d%H%M%S")
+        self.start_time = datetime.strptime(str(ds_nodash)+"000000", "%Y%m%d%H%M%S")
 
     def customer_generate(self):
         for i in range(self.number):
