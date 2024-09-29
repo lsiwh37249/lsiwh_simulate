@@ -52,6 +52,7 @@ class Customer(object):
         self.logging.info(f"{name}, [{current_sim_time}], 커피수령")
 
 def start(logging,ds_nodash):    
+    
     env = simpy.Environment()
     staff = simpy.Resource(env, capacity=2)
     
