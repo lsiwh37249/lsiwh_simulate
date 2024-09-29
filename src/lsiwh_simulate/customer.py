@@ -5,14 +5,15 @@ import random
 import logging
 
 class Customer(object):
-    def __init__(self, env, number,staff,logging):
+    def __init__(self, env, number,staff,logging, ds_nodash):
         self.env = env
         self.number = number 
         self.staff = staff  # staff 인자를 받아서 클래스 내부에서 사용
         #분포에 따라 customer 도착
         self.action = env.process(self.customer_generate())
-        self.start_time = datetime.now()
+        #self.start_time = datetime.now()
         self.logging = logging
+        self.start_time = datetime.strptime(str(ds_nodash)+000000, "%Y%m%d%H%M%S")
 
     def customer_generate(self):
         for i in range(self.number):
@@ -50,12 +51,12 @@ class Customer(object):
         current_sim_time = self.start_time + timedelta(seconds=self.env.now)
         self.logging.info(f"{name}, [{current_sim_time}], 커피수령")
 
-def start(logging):    
+def start(logging,ds_nodash):    
     env = simpy.Environment()
     staff = simpy.Resource(env, capacity=2)
     
     random_value = random.randint(1000, 1500)
     print(random_value)
     
-    customer = Customer(env, random_value ,staff, logging)
+    customer = Customer(env, random_value ,staff, logging, ds_nodash)
     env.run()
